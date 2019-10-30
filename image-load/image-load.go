@@ -4,10 +4,10 @@ import (
 	"bufio"
 	"crypto/sha1"
 	"encoding/hex"
-	"flag"
 	"fmt"
 	"io"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -67,19 +67,84 @@ func splitFile(reader *bufio.Reader, buffer []byte, imgPath string) {
 	}
 }
 
-func main() {
-	fptr := flag.String("fpath", "test.jpg", "file path to read from")
-	flag.Parse()
-	imagePath := *fptr
-	f, err := os.Open(imagePath)
-	check(err)
+func getFiles(dir string, fileName string) ([]string, error) {
+	var files []string
+	f, err := os.Open(dir)
+	if err != nil {
+		return files, err
+	}
 
 	defer func() {
 		check(f.Close())
 	}()
 
-	r := bufio.NewReader(f)
-	b := make([]byte, splittedFileSize)
+	fileInfo, err := f.Readdir(-1)
+	if err != nil {
+		return files, err
+	}
+	for _, file := range fileInfo {
+		if strings.Contains(file.Name(), fileName) {
+			files = append(files, file.Name())
+		}
+	}
+	sort.Strings(files)
+	return files, nil
+}
 
-	splitFile(r, b, imagePath)
+func mergeFiles(srcDir string, dir string, fileName string) error {
+	files, err := getFiles(srcDir, fileName)
+	check(err)
+	f, err := os.OpenFile(dir+"/"+fileName+".jpg", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	check(err)
+	defer func() {
+		cerr := f.Close()
+		if cerr == nil {
+			err = cerr
+		}
+	}()
+	fmt.Println(files)
+	for _, file := range files {
+		in, err := os.Open(srcDir + "/" + file)
+		stat, err := in.Stat()
+		check(err)
+		fmt.Println("size of " + file + ": " + strconv.FormatInt(stat.Size(), 10))
+		check(err)
+		_, cerr := io.Copy(f, in)
+		check(cerr)
+		in.Close()
+	}
+
+	return err
+}
+
+func main() {
+	// fptr := flag.String("fpath", "test.jpg", "file path to read from")
+	// flag.Parse()
+	// imagePath := *fptr
+	// f, err := os.Open(imagePath)
+	// check(err)
+
+	// defer func() {
+	// 	check(f.Close())
+	// }()
+
+	// r := bufio.NewReader(f)
+	// b := make([]byte, splittedFileSize)
+
+	// splitFile(r, b, imagePath)
+
+	// str, err := getFiles("/home/victor/gocode/src/github.com/jsonvoorhees11/distributed-image/splitted", "a64a2dd2c7")
+	// check(err)
+	// for i, val := range str {
+	// 	if i > 0 && val != str[i] {
+	// 		panic("Wrong")
+	// 	}
+	// }
+
+	err := mergeFiles(
+		"/home/victor/gocode/src/github.com/jsonvoorhees11/distributed-image/splitted",
+		"/home/victor/gocode/src/github.com/jsonvoorhees11/distributed-image/merged",
+		"a64a2dd2c7")
+
+	check(err)
 }

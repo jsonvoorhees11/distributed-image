@@ -1,6 +1,8 @@
-package main
+package fileManip
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestGetSplittedDirectory(t *testing.T) {
 	imagePath := "/home/gocode/src/github.com/jsonvoorhees11/distributed-image/images/test.jpg"
@@ -12,5 +14,4 @@ func TestGetSplittedDirectory(t *testing.T) {
 	} else {
 		t.Logf("success")
 	}
-
 }
