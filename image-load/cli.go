@@ -40,6 +40,14 @@ func runCmd(cmdStr string) error {
 		}
 		fmt.Fprintln(os.Stdout, splitImage(filePath.Value))
 		return nil
+	case strings.ToLower(mergeImg):
+		var err error
+		srcPath, err := strHelper.ParseStrToFlag(cmdArr[1])
+		dstPath, err := strHelper.ParseStrToFlag(cmdArr[2])
+		if err != nil {
+			return err
+		}
+		fmt.Fprintln(os.Stdout, mergeImage(srcPath.Value, dstPath.Value))
 	}
 
 	cmd := exec.Command(cmdArr[0], cmdArr[1:]...)
@@ -50,5 +58,12 @@ func runCmd(cmdStr string) error {
 
 func splitImage(imgPath string) string {
 	fileManip.SplitFile(imgPath)
+	return "OK"
+}
+
+func mergeImage(srcPath string, dstPath string) string {
+	fmt.Println("src: " + srcPath)
+	fmt.Println("dst: " + dstPath)
+	fileManip.MergeFiles(srcPath, dstPath, "a64a2dd2c7")
 	return "OK"
 }
