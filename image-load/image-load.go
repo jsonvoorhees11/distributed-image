@@ -117,7 +117,7 @@ func mergeFiles(srcDir string, dir string, fileName string) error {
 	return err
 }
 
-func main() {
+func main1() {
 	// fptr := flag.String("fpath", "test.jpg", "file path to read from")
 	// flag.Parse()
 	// imagePath := *fptr

@@ -14,7 +14,16 @@ import (
 
 const splittedFileSize = 10000
 
-func SplitFile(reader *bufio.Reader, buffer []byte, imgPath string) {
+func SplitFile(imgPath string) {
+	f, err := os.Open(imgPath)
+	check(err)
+	defer func() {
+		check(f.Close())
+	}()
+
+	reader := bufio.NewReader(f)
+	buffer := make([]byte, splittedFileSize)
+
 	splittedDir := getSplittedDirectory(imgPath)
 	hashedFileName := strHelper.GetHashCode(imgPath, 5)
 	fmt.Printf("Splitted files directory: %v", splittedDir+hashedFileName)
