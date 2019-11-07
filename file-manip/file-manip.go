@@ -12,7 +12,7 @@ import (
 	strHelper "github.com/jsonvoorhees11/distributed-image/string-helpers"
 )
 
-const splittedFileSize = 10000
+const splittedFileSize = 300000
 
 func SplitFile(imgPath string) {
 	f, err := os.Open(imgPath)
